@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hacé tu pedido</title>
+<style>
+  :root {
+    --bg: #FAF7F2;
+    --ink: #2B2420;
+    --line: #E4DCD1;
+    --accent: #C4622D;
+    --accent-dark: #9C4A20;
+    --card: #FFFFFF;
+    --muted: #8A7F72;
+    --error: #B3261E;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Georgia', 'Iowan Old Style', serif;
+    line-height: 1.5;
+  }
+
+  header {
+    padding: 32px 20px 20px;
+    text-align: center;
+    border-bottom: 1px solid var(--line);
+  }
+
+  header h1 {
+    margin: 0 0 6px;
+    font-size: 28px;
+    letter-spacing: 0.3px;
+  }
+
+  header p {
+    margin: 0;
+    color: var(--muted);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 14px;
+  }
+
+  main {
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 24px 16px 100px;
+  }
+
+  .producto {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .producto-icono {
+    width: 56px;
+    height: 56px;
+    border-radius: 8px;
+    background: #F1E7DC;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    flex-shrink: 0;
+  }
+
+  .producto-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .producto-info h3 {
+    margin: 0 0 2px;
+    font-size: 17px;
+  }
+
+  .producto-info .precio {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: var(--accent-dark);
+    font-weight: 600;
+    font-size: 15px;
+  }
+
+  .cantidad {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  .cantidad button {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    font-size: 16px;
+    cursor: pointer;
+    color: var(--ink);
+  }
+
+  .cantidad button:active { background: var(--line); }
+
+  .cantidad span {
+    min-width: 18px;
+    text-align: center;
+    font-weight: 600;
+  }
+
+  .resumen {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 18px;
+    margin: 24px 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  .resumen-total {
+    display: flex;
+    justify-content: space-between;
+    font-size: 19px;
+    font-weight: 700;
+    border-top: 1px dashed var(--line);
+    margin-top: 10px;
+    padding-top: 10px;
+  }
+
+  .datos {
+    margin-top: 28px;
+  }
+
+  .datos h2 {
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+
+  label {
+    display: block;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 5px;
+    margin-top: 14px;
+  }
+
+  input {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    font-size: 15px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--card);
+    color: var(--ink);
+  }
+
+  input:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  .error-msg {
+    color: var(--error);
+    font-size: 12.5px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    margin-top: 4px;
+    display: none;
+  }
+
+  .campo.invalido .error-msg { display: block; }
+  .campo.invalido input { border-color: var(--error); }
+
+  .btn-enviar {
+    width: 100%;
+    margin-top: 24px;
+    padding: 16px;
+    border: none;
+    border-radius: 10px;
+    background: var(--accent);
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+
+  .btn-enviar:active { background: var(--accent-dark); }
+  .btn-enviar:disabled { background: #C9BEAF; cursor: not-allowed; }
+
+  .estado {
+    text-align: center;
+    margin-top: 14px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 14px;
+    display: none;
+  }
+
+  .estado.ok { color: #1E6B3A; display: block; }
+  .estado.fail { color: var(--error); display: block; }
+
+  .vacio {
+    text-align: center;
+    color: var(--muted);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 14px;
+    margin: 10px 0 0;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🛍️ Nuestros productos</h1>
+  <p>Elegí lo que querés y te confirmamos por WhatsApp</p>
+</header>
+
+<main>
+  <div id="lista-productos"></div>
+
+  <div class="resumen">
+    <div id="lineas-resumen"></div>
+    <p class="vacio" id="msg-vacio">Todavía no agregaste productos</p>
+    <div class="resumen-total">
+      <span>Total</span>
+      <span id="total-precio">$0</span>
+    </div>
+  </div>
+
+  <div class="datos">
+    <h2>Tus datos</h2>
+
+    <div class="campo" id="campo-nombre">
+      <label for="nombre">Nombre *</label>
+      <input type="text" id="nombre" placeholder="Tu nombre">
+      <div class="error-msg">Ingresá tu nombre</div>
+    </div>
+
+    <div class="campo" id="campo-celular">
+      <label for="celular">Celular *</label>
+      <input type="tel" id="celular" placeholder="Ej: 1122334455">
+      <div class="error-msg">Ingresá un celular válido</div>
+    </div>
+
+    <div class="campo" id="campo-barrio">
+      <label for="barrio">Barrio (opcional)</label>
+      <input type="text" id="barrio" placeholder="Tu barrio">
+    </div>
+
+    <button class="btn-enviar" id="btn-enviar">Enviar pedido</button>
+    <p class="estado" id="estado"></p>
+  </div>
+</main>
+
+<script>
+  // =========================================================
+  // 1) EDITÁ ACÁ TUS PRODUCTOS: nombre, precio, ícono (emoji)
+  // =========================================================
+  const productos = [
+    { id: 1, nombre: "Remera negra",   precio: 8500,  icono: "👕" },
+    { id: 2, nombre: "Gorra azul",     precio: 5200,  icono: "🧢" },
+    { id: 3, nombre: "Zapatillas",     precio: 21000, icono: "👟" },
+    { id: 4, nombre: "Mochila",        precio: 15600, icono: "🎒" },
+    { id: 5, nombre: "Buzo canguro",   precio: 12300, icono: "🥼" },
+  ];
+
+  // =========================================================
+  // 2) PEGÁ ACÁ LA URL DE TU GOOGLE APPS SCRIPT (ver instrucciones)
+  // =========================================================
+  const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbxzr0m_NX-Q0Njkc49P0jWcal4O046kk7f0VrpA5ZpJSKdcLCNJaa--cqIZvFg2IGNjKA/exec";
+
+  const cantidades = {};
+  productos.forEach(p => cantidades[p.id] = 0);
+
+  const formatoPrecio = (n) => "$" + n.toLocaleString("es-AR");
+
+  function renderProductos() {
+    const cont = document.getElementById("lista-productos");
+    cont.innerHTML = productos.map(p => `
+      <div class="producto">
+        <div class="producto-icono">${p.icono}</div>
+        <div class="producto-info">
+          <h3>${p.nombre}</h3>
+          <div class="precio">${formatoPrecio(p.precio)}</div>
+        </div>
+        <div class="cantidad">
+          <button onclick="cambiarCantidad(${p.id}, -1)">−</button>
+          <span id="cant-${p.id}">${cantidades[p.id]}</span>
+          <button onclick="cambiarCantidad(${p.id}, 1)">+</button>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  function cambiarCantidad(id, delta) {
+    cantidades[id] = Math.max(0, cantidades[id] + delta);
+    document.getElementById(`cant-${id}`).textContent = cantidades[id];
+    renderResumen();
+  }
+
+  function renderResumen() {
+    const lineas = document.getElementById("lineas-resumen");
+    const msgVacio = document.getElementById("msg-vacio");
+    let total = 0;
+    let html = "";
+
+    productos.forEach(p => {
+      if (cantidades[p.id] > 0) {
+        const subtotal = p.precio * cantidades[p.id];
+        total += subtotal;
+        html += `<div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:4px;">
+          <span>${p.nombre} x${cantidades[p.id]}</span>
+          <span>${formatoPrecio(subtotal)}</span>
+        </div>`;
+      }
+    });
+
+    lineas.innerHTML = html;
+    msgVacio.style.display = total === 0 ? "block" : "none";
+    document.getElementById("total-precio").textContent = formatoPrecio(total);
+  }
+
+  function validarCampo(id, condicion) {
+    const campo = document.getElementById(`campo-${id}`);
+    if (condicion) {
+      campo.classList.remove("invalido");
+      return true;
+    } else {
+      campo.classList.add("invalido");
+      return false;
+    }
+  }
+
+  function obtenerCarritoTexto() {
+    return productos
+      .filter(p => cantidades[p.id] > 0)
+      .map(p => `${p.nombre} x${cantidades[p.id]} (${formatoPrecio(p.precio * cantidades[p.id])})`)
+      .join(", ");
+  }
+
+  function obtenerTotal() {
+    return productos.reduce((acc, p) => acc + p.precio * cantidades[p.id], 0);
+  }
+
+  document.getElementById("btn-enviar").addEventListener("click", async () => {
+    const nombre = document.getElementById("nombre").value.trim();
+    const celular = document.getElementById("celular").value.trim();
+    const barrio = document.getElementById("barrio").value.trim();
+    const estado = document.getElementById("estado");
+
+    const nombreOk = validarCampo("nombre", nombre.length > 0);
+    const celularOk = validarCampo("celular", /^[0-9+\s()-]{6,}$/.test(celular));
+    const hayProductos = obtenerTotal() > 0;
+
+    if (!nombreOk || !celularOk) return;
+
+    if (!hayProductos) {
+      estado.textContent = "Agregá al menos un producto antes de enviar.";
+      estado.className = "estado fail";
+      return;
+    }
+
+    const btn = document.getElementById("btn-enviar");
+    btn.disabled = true;
+    btn.textContent = "Enviando...";
+    estado.className = "estado";
+
+    const datos = {
+      nombre,
+      celular,
+      barrio: barrio || "(sin especificar)",
+      pedido: obtenerCarritoTexto(),
+      total: obtenerTotal()
+    };
+
+    try {
+      await fetch(URL_APPS_SCRIPT, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify(datos)
+      });
+
+      estado.textContent = "¡Pedido enviado! Te contactamos en breve.";
+      estado.className = "estado ok";
+      btn.textContent = "Enviar pedido";
+      btn.disabled = false;
+
+      // Reinicia el carrito
+      productos.forEach(p => cantidades[p.id] = 0);
+      renderProductos();
+      renderResumen();
+      document.getElementById("nombre").value = "";
+      document.getElementById("celular").value = "";
+      document.getElementById("barrio").value = "";
+
+    } catch (err) {
+      estado.textContent = "Hubo un error al enviar. Probá de nuevo.";
+      estado.className = "estado fail";
+      btn.textContent = "Enviar pedido";
+      btn.disabled = false;
+    }
+  });
+
+  renderProductos();
+  renderResumen();
+</script>
+
+</body>
+</html>
